@@ -1,4 +1,4 @@
-package org.example.entity;
+package org.example.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Event {
+public class DataEvent {
 
     private String id1;
 

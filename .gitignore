@@ -1,2 +1,4 @@
 /.idea/
 target
+/dependency-reduced-pom.xml
+/flink-kafka-event-to-reids/dependency-reduced-pom.xml
