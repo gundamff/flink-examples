@@ -20,8 +20,10 @@ public class FlinkKafkaToMysql {
         StreamExecutionEnvironment env = ExecutionEnvUtil.prepare(parameterTool);
         env.setParallelism(1);
         Properties props = buildKafkaProps(parameterTool);
+        props.put("group.id", "flink kafka To Mysql");
 
-        FlinkKafkaConsumer011<DataEvent> consumer = new FlinkKafkaConsumer011<DataEvent>(props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID), new TypeInformationSerializationSchema<DataEvent>(TypeInformation.of(DataEvent.class),env.getConfig()), props);
+        FlinkKafkaConsumer011<DataEvent> consumer = new FlinkKafkaConsumer011<DataEvent>(props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID),
+                new TypeInformationSerializationSchema<DataEvent>(TypeInformation.of(DataEvent.class),env.getConfig()), props);
 
         env.addSource(consumer).print();
 
