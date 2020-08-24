@@ -21,5 +21,5 @@ public class DataEvent {
 
     private Date eventTime;
 
-    private String value;
+    private int value;
 }

@@ -7,13 +7,14 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.example.constant.PropertiesConstants;
 import org.example.model.DataEvent;
 import org.example.utils.ExecutionEnvUtil;
 import org.example.utils.KafkaConfigUtil;
 
+import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
-import java.util.UUID;
 
 @Slf4j
 public class FlinkKafkaProducer {
@@ -38,16 +39,13 @@ public class FlinkKafkaProducer {
         Properties props = KafkaConfigUtil.buildKafkaProps(parameterTool);
         env.setParallelism(1);
 
-        log.error("#################");
-        log.error(props.toString());
-        log.error("#################");
-
         env.addSource(new SourceFunction<DataEvent>() {
             @Override
             public void run(SourceContext<DataEvent> sourceContext) throws Exception {
                 while (true){
                     for (int i=0;i<=100;i++){
-                        sourceContext.collect(DataEvent.builder().id1(ID1S[random.nextInt(ID1S.length)]).id2(ID2S[random.nextInt(ID2S.length)]).id3(ID3S[random.nextInt(ID3S.length)]).value(UUID.randomUUID().toString()).build());
+                        sourceContext.collect(DataEvent.builder().id1(ID1S[random.nextInt(ID1S.length)]).id2(ID2S[random.nextInt(ID2S.length)])
+                                .id3(ID3S[random.nextInt(ID3S.length)]).eventTime(new Date()).value(random.nextInt()).build());
                     }
                     Thread.sleep(10000);
                 }
@@ -58,10 +56,10 @@ public class FlinkKafkaProducer {
 
             }
         }).addSink(new FlinkKafkaProducer011<DataEvent>(
-                //props.getProperty(PropertiesConstants.KAFKA_BROKERS),
-                "localhost:9092",
-                //props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID),
-                "event_test",
+                props.getProperty(PropertiesConstants.KAFKA_BROKERS),
+                //"localhost:9092",
+                props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID),
+                //"event_test",
                 new TypeInformationSerializationSchema<DataEvent>(TypeInformation.of(DataEvent.class),env.getConfig())
         )).name("flink-kafka-random-event-Producer");
                 //.addSink(new PrintSinkFunction<Event>());

@@ -7,6 +7,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.example.constant.PropertiesConstants;
 import org.example.model.DataEvent;
+import org.example.sinks.SinkToMysql;
 import org.example.utils.ExecutionEnvUtil;
 
 import java.util.Properties;
@@ -25,7 +26,7 @@ public class FlinkKafkaToMysql {
         FlinkKafkaConsumer011<DataEvent> consumer = new FlinkKafkaConsumer011<DataEvent>(props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID),
                 new TypeInformationSerializationSchema<DataEvent>(TypeInformation.of(DataEvent.class),env.getConfig()), props);
 
-        env.addSource(consumer).print();
+        env.addSource(consumer).addSink(new SinkToMysql()).setParallelism(parameterTool.getInt(PropertiesConstants.STREAM_SINK_PARALLELISM, 1));
 
         env.execute("flink kafka To Mysql");
     }
