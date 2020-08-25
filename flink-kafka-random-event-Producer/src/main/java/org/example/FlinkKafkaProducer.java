@@ -1,6 +1,7 @@
 package org.example;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.serialization.TypeInformationSerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -19,18 +20,6 @@ import java.util.Random;
 @Slf4j
 public class FlinkKafkaProducer {
 
-    private static final String[] ID1S = new String[]{
-            "A","B","C","d","E","F","G","H"
-    };
-
-    private static final String[] ID2S = new String[]{
-            "甲","乙","丙","丁","戊","己","庚","辛"
-    };
-
-    private static final String[] ID3S = new String[]{
-            "1","2","3","4","5","6","7","8"
-    };
-
     public static final Random random = new Random();
 
     public static void main(String[] args) throws Exception {
@@ -44,8 +33,8 @@ public class FlinkKafkaProducer {
             public void run(SourceContext<DataEvent> sourceContext) throws Exception {
                 while (true){
                     for (int i=0;i<=100;i++){
-                        sourceContext.collect(DataEvent.builder().id1(ID1S[random.nextInt(ID1S.length)]).id2(ID2S[random.nextInt(ID2S.length)])
-                                .id3(ID3S[random.nextInt(ID3S.length)]).eventTime(new Date()).value(random.nextInt()).build());
+                        sourceContext.collect(DataEvent.builder().id1(RandomStringUtils.randomAlphabetic(2)).id2(RandomStringUtils.randomAlphabetic(2))
+                                .id3(RandomStringUtils.randomAlphabetic(2)).eventTime(new Date()).value(Integer.parseInt(RandomStringUtils.randomNumeric(3))).build());
                     }
                     Thread.sleep(10000);
                 }

@@ -32,7 +32,8 @@ under the License.
 		<module>flink-kafka-random-event-Producer</module>
 		<module>flink-kafka-event-to-mysql</module>
 		<module>flink-kafka-event-to-reids</module>
-	</modules>
+        <module>flin-kafka-event-windows-mysql</module>
+    </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
