@@ -1,8 +1,10 @@
 package org.example;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.TypeInformationSerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
@@ -26,8 +28,20 @@ public class FlinkKafkaWindowsMysql {
         FlinkKafkaConsumer011<DataEvent> consumer = new FlinkKafkaConsumer011<DataEvent>(props.getProperty(PropertiesConstants.KAFKA_TOPIC_ID),
                 new TypeInformationSerializationSchema<DataEvent>(TypeInformation.of(DataEvent.class),env.getConfig()), props);
 
-        env.addSource(consumer).keyBy("id1","id2","id3").timeWindow(Time.seconds(60)).max("value").printToErr();
+        //env.addSource(consumer).keyBy(DataEvent::getId1).window(TumblingEventTimeWindows.of(Time.seconds(5))).max("value").print();
 
-        env.execute("flink kafka To Mysql");
+        //https://segmentfault.com/a/1190000023295254
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.addSource(consumer)
+               .assignTimestampsAndWatermarks(
+                       WatermarkStrategy.<DataEvent>forMonotonousTimestamps()
+                               .withTimestampAssigner((event, timestamp)->event.getEventTime().getTime())
+               ).keyBy(DataEvent::getId1)
+               .timeWindow(Time.seconds(10))
+               .sum("value")
+               .print()
+               .name("flink kafka Windows Mysql");
+
+        env.execute("flink kafka Windows Mysql");
     }
 }
