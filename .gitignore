@@ -3,3 +3,11 @@ target
 /dependency-reduced-pom.xml
 /flink-kafka-event-to-reids/dependency-reduced-pom.xml
 *.iml
+.settings
+flin-kafka-event-windows-mysql/bin
+*.classpath
+*.project
+flin-kafka-event-windows-mysql/dependency-reduced-pom.xml
+bin
+flink-kafka-event-to-mysql/dependency-reduced-pom.xml
+flink-kafka-random-event-Producer/dependency-reduced-pom.xml

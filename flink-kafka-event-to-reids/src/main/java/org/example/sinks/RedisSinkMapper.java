@@ -13,8 +13,8 @@ public class RedisSinkMapper implements RedisMapper<DataEvent> {
 
     @Override
     public String getKeyFromData(DataEvent data) {
-        System.out.println("data.getKeyFromData"+data);
-        return String.format("%s:%s:%s",data.getId1(),data.getId2(),data.getId3());
+        System.out.println("data.getKeyFromData" + data);
+        return String.format("%s:%s:%s", data.getId());
     }
 
     @Override
