@@ -3,6 +3,7 @@ package org.example;
 import static org.example.utils.KafkaConfigUtil.buildKafkaProps;
 
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -39,13 +40,13 @@ public class FlinkKafkaWindowsMysql {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.addSource(consumer)
             .assignTimestampsAndWatermarks(WatermarkStrategy.<DataEvent>forMonotonousTimestamps()
-                .withTimestampAssigner((event, timestamp) -> event.getEventTime().getTime()))
+                .withTimestampAssigner((event, timestamp) -> event.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli()))
             .keyBy("id").timeWindow(Time.seconds(10)).max("eventTime")
             .addSink(JdbcSink.sink(
                 "insert into `DataEvent2`(`id`, `eventTime`,`value`) values(?, ?, ?) ON duplicate key update `value`=VALUES(`value`)",
                 (ps, t) -> {
                     ps.setString(1, t.getId());
-                    ps.setTimestamp(2, new Timestamp(t.getEventTime().getTime()));
+                    ps.setTimestamp(2, new Timestamp(t.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli()));
                     ps.setInt(3, t.getValue());
                 },
                 new JdbcConnectionOptions.JdbcConnectionOptionsBuilder().withUrl(

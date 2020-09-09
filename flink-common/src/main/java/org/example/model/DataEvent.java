@@ -1,6 +1,6 @@
 package org.example.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ public class DataEvent {
 
     private String id;
 
-    private Date eventTime;
+    private LocalDateTime eventTime;
 
     private int value;
 
