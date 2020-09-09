@@ -35,8 +35,9 @@ public class FlinkKafkaProducer {
             public void run(SourceContext<DataEvent> sourceContext) throws Exception {
                 while (true) {
                     for (int i = 0; i <= 100; i++) {
-                        sourceContext.collect(DataEvent.builder().id(RandomStringUtils.random(5, "ABCDEF"))
-                            .eventTime(new Date()).value(Integer.parseInt(RandomStringUtils.randomNumeric(3))).build());
+                        sourceContext.collect(DataEvent.builder()
+                            .id(RandomStringUtils.random(5, "ABCDEFGHIJKLMNOPQRST")).eventTime(new Date())
+                            .value(Integer.parseInt(RandomStringUtils.randomNumeric(3))).build());
                     }
                     Thread.sleep(1000);
                 }

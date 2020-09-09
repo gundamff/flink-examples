@@ -1,5 +1,7 @@
 CREATE TABLE `dataevent` (
-  `id` VARCHAR(32) NOT NULL,
-  `eventTime` DATETIME NULL,
-  `value` INT NULL,
-  PRIMARY KEY (`id`));
+  `id` varchar(32) NOT NULL,
+  `eventTime` datetime NOT NULL,
+  `value` int(11) DEFAULT NULL,
+  `insertDbTime` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`,`eventTime`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
