@@ -1,7 +1,6 @@
 package org.example;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
 
@@ -35,7 +34,7 @@ public class FlinkKafkaProducer {
             @Override
             public void run(SourceContext<DataEvent> sourceContext) throws Exception {
                 while (true) {
-                    for (int i = 0; i <= 100; i++) {
+                    for (int i = 1; i <= 1; i++) {
                         sourceContext.collect(DataEvent.builder()
                             .id(RandomStringUtils.random(5, "ABCDEFGHIJKLMNOPQRST")).eventTime(LocalDateTime.now())
                             .value(Integer.parseInt(RandomStringUtils.randomNumeric(3))).build());

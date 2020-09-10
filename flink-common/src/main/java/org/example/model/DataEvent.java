@@ -17,6 +17,6 @@ public class DataEvent {
 
     private LocalDateTime eventTime;
 
-    private int value;
+    private Integer value;
 
 }
