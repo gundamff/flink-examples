@@ -48,8 +48,12 @@ public class FlinkKafkaWindowsMysql {
         }).assignTimestampsAndWatermarks(
             WatermarkStrategy.<DataEvent>forMonotonousTimestamps().withTimestampAssigner((event, timestamp) -> {
                 return event.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
-            })).keyBy("id").timeWindow(Time.seconds(10)).maxBy("eventTime")
-            .map(new MapFunction<DataEvent, DataEventHistory>() {
+            })).keyBy("id")
+        // @formatter:off
+             .timeWindow(Time.seconds(10))
+            //.window(TumblingEventTimeWindows.of(Time.seconds(10)))
+         // @formatter:on 
+            .maxBy("eventTime").map(new MapFunction<DataEvent, DataEventHistory>() {
 
                 private static final long serialVersionUID = -1101914747012198955L;
 
