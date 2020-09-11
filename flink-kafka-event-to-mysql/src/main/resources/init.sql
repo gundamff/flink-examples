@@ -4,4 +4,4 @@ CREATE TABLE `dataevent` (
   `value` int(11) DEFAULT NULL,
   `insertDbTime` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`,`eventTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

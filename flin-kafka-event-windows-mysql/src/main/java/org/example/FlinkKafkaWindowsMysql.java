@@ -2,12 +2,11 @@ package org.example;
 
 import static org.example.utils.KafkaConfigUtil.buildKafkaProps;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Properties;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.TypeInformationSerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -22,6 +21,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.util.StringUtils;
 import org.example.constant.PropertiesConstants;
 import org.example.model.DataEvent;
+import org.example.model.DataEventHistory;
 import org.example.utils.ExecutionEnvUtil;
 
 public class FlinkKafkaWindowsMysql {
@@ -42,28 +42,34 @@ public class FlinkKafkaWindowsMysql {
 
         // https://segmentfault.com/a/1190000023295254
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        SingleOutputStreamOperator<DataEvent> dataStreamSource = env.addSource(consumer).assignTimestampsAndWatermarks(
+        SingleOutputStreamOperator<DataEventHistory> dataStreamSource = env.addSource(consumer).filter(event -> {
+            // 过滤掉错误的
+            return event != null && !StringUtils.isNullOrWhitespaceOnly(event.getId());
+        }).assignTimestampsAndWatermarks(
             WatermarkStrategy.<DataEvent>forMonotonousTimestamps().withTimestampAssigner((event, timestamp) -> {
-                if (!StringUtils.isNullOrWhitespaceOnly(event.getId())) {
-                    return event.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
-                } else {
-                    return LocalDateTime.now().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
+                return event.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
+            })).keyBy("id").timeWindow(Time.seconds(10)).maxBy("eventTime")
+            .map(new MapFunction<DataEvent, DataEventHistory>() {
+
+                private static final long serialVersionUID = -1101914747012198955L;
+
+                @Override
+                public DataEventHistory map(DataEvent value) throws Exception {
+                    return new DataEventHistory(value);
                 }
-            })).keyBy("id").timeWindow(Time.seconds(10)).max("eventTime");
+            });
         dataStreamSource.print();
-        dataStreamSource.addSink(JdbcSink.sink(
-            "insert into `DataEvent`(`id`, `eventTime`,`value`) values(?, ?, ?) ON duplicate key update `value`=VALUES(`value`)",
-            (ps, t) -> {
-                if (!StringUtils.isNullOrWhitespaceOnly(t.getId())) {
-                    ps.setString(1, t.getId());
-                    ps.setTimestamp(2, new Timestamp(t.getEventTime().toInstant(ZoneOffset.ofHours(8)).toEpochMilli()));
-                    ps.setInt(3, t.getValue());
-                }
-            }, JdbcExecutionOptions.builder().withBatchSize(1).withBatchIntervalMs(0).withMaxRetries(1).build(),
+
+        dataStreamSource.addSink(JdbcSink.sink("call savedataeventhistory(?,?,?,?)", (ps, t) -> {
+            ps.setString(1, t.getId());
+            ps.setDate(2, java.sql.Date.valueOf(t.getEventDate()));
+            ps.setString(3, t.getHn());
+            ps.setInt(4, t.getLastValue());
+        }, JdbcExecutionOptions.builder().withBatchSize(1).withBatchIntervalMs(0).withMaxRetries(1).build(),
             new JdbcConnectionOptions.JdbcConnectionOptionsBuilder().withUrl(
                 "jdbc:mysql://localhost:3306/test?useSSL=false&useUnicode=true&characterEncoding=UTF8&serverTimezone=GMT")
                 .withUsername("root").withPassword("123456").withDriverName("com.mysql.cj.jdbc.Driver").build()))
-            .name("kafka to mysql").name("flink kafka Windows Mysql");
+            .name("flink kafka Windows Mysql");
 
         env.execute("flink kafka Windows Mysql");
     }
