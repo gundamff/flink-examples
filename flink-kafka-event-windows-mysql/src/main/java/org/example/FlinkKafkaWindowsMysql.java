@@ -21,6 +21,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.util.StringUtils;
 import org.example.constant.PropertiesConstants;
 import org.example.model.DataEvent;
+import org.example.model.DataEventDayReport;
 import org.example.model.DataEventHistory;
 import org.example.utils.ExecutionEnvUtil;
 
@@ -52,7 +53,7 @@ public class FlinkKafkaWindowsMysql {
         // @formatter:off
              .timeWindow(Time.seconds(10))
             //.window(TumblingEventTimeWindows.of(Time.seconds(10)))
-         // @formatter:on 
+         // @formatter:on
             .maxBy("eventTime").map(new MapFunction<DataEvent, DataEventHistory>() {
 
                 private static final long serialVersionUID = -1101914747012198955L;

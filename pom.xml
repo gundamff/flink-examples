@@ -32,12 +32,13 @@ under the License.
 		<module>flink-kafka-random-event-Producer</module>
 		<module>flink-kafka-event-to-mysql</module>
 		<module>flink-kafka-event-to-reids</module>
-        <module>flin-kafka-event-windows-mysql</module>
-    </modules>
+        <module>flink-kafka-event-windows-mysql</module>
+		<module>flink-kafka-event-day-report</module>
+	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<flink.version>1.11.1</flink.version>
+		<flink.version>1.11.2</flink.version>
 		<java.version>1.8</java.version>
 		<scala.binary.version>2.11</scala.binary.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
